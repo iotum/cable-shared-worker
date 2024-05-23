@@ -1,4 +1,5 @@
 import {
+  CABLE_STATE_CALLBACK,
   PING_COMMAND,
   PONG_COMMAND,
   SUBSCRIBE_TO_CHANNEL,
@@ -255,6 +256,7 @@ const closeWorker = () =>
   })
 
 export {
+  CABLE_STATE_CALLBACK,
   isWorkersAvailable,
   isSharedWorkerAvailable,
   isWebWorkerAvailable,

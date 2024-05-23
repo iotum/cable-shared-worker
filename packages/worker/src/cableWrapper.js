@@ -1,4 +1,8 @@
-import { ACTIONCABLE_TYPE, WEBSOCKET_MESSAGE_COMMAND } from './../../../shared/constants'
+import {
+  ACTIONCABLE_TYPE,
+  CABLE_STATE_CALLBACK,
+  WEBSOCKET_MESSAGE_COMMAND
+} from './../../../shared/constants'
 
 const UNSUBSCRIBE_CHECK_TIMEOUT = 300 // give time to unsubscribe from channels
 
@@ -53,6 +57,43 @@ export const initCableWrapper = (apiType = ACTIONCABLE_TYPE, api, options = {}, 
     }
   }
 
+  const actionCableSubscribe = (channel, params, port, id) => {
+    const postEvent = (event, ...args) => {
+      port.postMessage({
+        command: WEBSOCKET_MESSAGE_COMMAND,
+        data: { _type: CABLE_STATE_CALLBACK, event, args },
+        id
+      })
+    }
+    const events = [
+      'appear',
+      'away',
+      'connected',
+      'disconnected',
+      'initialized',
+      'install',
+      'rejected',
+      'uninstall',
+      'update'
+    ].reduce((map, event) => {
+      map[event] = postEvent.bind(postEvent, event)
+      return map
+    }, {})
+
+    return websocketConnection.subscriptions.create(
+      {
+        ...params,
+        channel
+      },
+      {
+        ...events,
+        received: (data) => {
+          port.postMessage({ command: WEBSOCKET_MESSAGE_COMMAND, data, id })
+        }
+      }
+    )
+  }
+
   return {
     isActive,
     isPaused,
@@ -90,18 +131,7 @@ export const initCableWrapper = (apiType = ACTIONCABLE_TYPE, api, options = {}, 
       }
 
       if (isActioncableAPI) {
-        const subscriptionChannel = websocketConnection.subscriptions.create(
-          {
-            ...params,
-            channel
-          },
-          {
-            received: (data) => {
-              port.postMessage({ command: WEBSOCKET_MESSAGE_COMMAND, data, id })
-            }
-          }
-        )
-
+        const subscriptionChannel = actionCableSubscribe(channel, params, port, id)
         return addSubscription(subscriptionChannel)
       } else {
         return websocketConnection.subscribeTo(channel, params).then((subscriptionChannel) => {
@@ -202,17 +232,7 @@ export const initCableWrapper = (apiType = ACTIONCABLE_TYPE, api, options = {}, 
                 !portReceiverMapping[id][keySub]?.channel
               ) {
                 const { channel, params } = portReceiverMapping[id][keySub].channelData
-                const subscriptionChannel = websocketConnection.subscriptions.create(
-                  {
-                    ...params,
-                    channel
-                  },
-                  {
-                    received: (data) => {
-                      port.postMessage({ command: WEBSOCKET_MESSAGE_COMMAND, data, id: keySub })
-                    }
-                  }
-                )
+                const subscriptionChannel = actionCableSubscribe(channel, params, port, keySub)
                 return {
                   ...aggSub,
                   [keySub]: {

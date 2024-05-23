@@ -1,5 +1,6 @@
 export const ACTIONCABLE_TYPE = 'actioncable'
 export const ANYCABLE_TYPE = 'anycable'
+export const CABLE_STATE_CALLBACK = '_CableState_'
 
 const COMMANDS_PREFIX = 'CABLE_SW'
 

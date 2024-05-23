@@ -1,4 +1,6 @@
 import {
+  ACTIONCABLE_TYPE,
+  ANYCABLE_TYPE,
   PONG_COMMAND,
   SUBSCRIBE_TO_CHANNEL,
   UNSUBSCRIBE_FROM_CHANNEL,
@@ -207,4 +209,4 @@ const initCableLibrary = (options = {}) => {
   return cableAPI
 }
 
-export { initCableLibrary }
+export { ACTIONCABLE_TYPE, ANYCABLE_TYPE, initCableLibrary }
