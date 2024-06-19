@@ -1,5 +1,6 @@
 import {
   CABLE_STATE_CALLBACK,
+  PORT_MAX_TTL,
   PING_COMMAND,
   PONG_COMMAND,
   SUBSCRIBE_TO_CHANNEL,
@@ -38,6 +39,7 @@ const isWorkersAvailable = isSharedWorkerAvailable || isWebWorkerAvailable
 let workerPort = null
 let cableReceiveMapping = {}
 let visibilityDeactivation = null
+let lastPingTime = null
 
 const triggerSubscriptionForChannel = (id, data) => {
   if (cableReceiveMapping[id]) {
@@ -52,6 +54,7 @@ const handleWorkerMessages = ({ event, options = {} }) => {
     case PING_COMMAND: {
       // always response on ping
       workerPort.postMessage({ command: PONG_COMMAND })
+      lastPingTime = Date.now()
       return
     }
     case WEBSOCKET_MESSAGE_COMMAND: {
@@ -251,16 +254,21 @@ const closeWorker = () =>
         workerPort.terminate() // close web worker port
       }
       workerPort = null
+      lastPingTime = null
     }
     resolve()
   })
 
+const getLastPingTime = () => lastPingTime
+
 export {
   CABLE_STATE_CALLBACK,
+  PORT_MAX_TTL,
   isWorkersAvailable,
   isSharedWorkerAvailable,
   isWebWorkerAvailable,
   initWorker,
   createChannel,
+  getLastPingTime,
   closeWorker
 }

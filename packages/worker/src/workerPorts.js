@@ -1,8 +1,7 @@
 import { uuid } from './../../../shared/uuid'
-import { PING_COMMAND } from './../../../shared/constants'
+import { PING_COMMAND, PORT_MAX_TTL } from './../../../shared/constants'
 
 const PORT_TICK_TIME = 5 * 1000 // microseconds
-const PORT_MAX_TTL = 21 * 1000 // microseconds
 
 let activePorts = {}
 

@@ -25,3 +25,5 @@ export const ALL_COMMANDS = [
   VISIBILITY_SHOW_COMMAND,
   VISIBILITY_HIDDEN_COMMAND
 ]
+
+export const PORT_MAX_TTL = 21 * 1000 // microseconds
